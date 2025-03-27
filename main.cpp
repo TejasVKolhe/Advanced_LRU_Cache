@@ -14,7 +14,6 @@ class Treap {
 private:
     TreapNode* root;
 
-    // Rotate right
     TreapNode* rotateRight(TreapNode* y) {
         TreapNode* x = y->left;
         y->left = x->right;
@@ -22,7 +21,6 @@ private:
         return x;
     }
 
-    // Rotate left
     TreapNode* rotateLeft(TreapNode* x) {
         TreapNode* y = x->right;
         x->right = y->left;
@@ -30,7 +28,6 @@ private:
         return y;
     }
 
-    // Insert into treap
     TreapNode* insert(TreapNode* root, int key) {
         if (!root) return new TreapNode(key);
         if (key < root->key) {
@@ -45,7 +42,6 @@ private:
         return root;
     }
 
-    // Delete from treap
     TreapNode* remove(TreapNode* root, int key) {
         if (!root) return nullptr;
         if (key < root->key)
@@ -91,10 +87,10 @@ struct ListNode {
 class LRUCache {
 private:
     int capacity;
-    unordered_map<int, ListNode*> cache;  // HashMap: key -> Node
-    Treap treap;                          // Treap for ordered access
-    ListNode* head;                        // Most recently used
-    ListNode* tail;                        // Least recently used
+    unordered_map<int, ListNode*> cache;
+    Treap treap;
+    ListNode* head;
+    ListNode* tail;
 
     void moveToHead(ListNode* node) {
         if (node == head) return;
@@ -147,26 +143,64 @@ public:
             delete tail;
         }
     }
+
+    void displayCache() {
+        ListNode* current = head;
+        cout << "\nCurrent LRU Cache: \n";
+        while (current) {
+            cout << "[Key: " << current->key << ", Value: " << current->value << "] ";
+            current = current->next;
+        }
+        cout << endl;
+    }
 };
 
-// Main function to test LRU Cache
+// Menu-driven program
 int main() {
-    LRUCache lru(3);
-    
-    lru.put(1, 10);
-    lru.put(2, 20);
-    lru.put(3, 30);
-    cout << lru.get(1) << endl; // Output: 10
+    int capacity;
+    cout << "Enter LRU Cache Capacity: ";
+    cin >> capacity;
 
-    lru.put(4, 40);  // Evicts 2 (LRU)
-    cout << lru.get(2) << endl; // Output: -1 (not found)
-    
-    lru.put(5, 50);  // Evicts 3 (LRU)
-    cout << lru.get(3) << endl; // Output: -1 (not found)
+    LRUCache lru(capacity);
 
-    cout << lru.get(4) << endl; // Output: 40
-    cout << lru.get(5) << endl; // Output: 50
+    while (true) {
+        cout << "\nMENU\n";
+        cout << "1. Put (Insert key-value pair)\n";
+        cout << "2. Get (Retrieve value by key)\n";
+        cout << "3. Display Cache\n";
+        cout << "4. Exit\n";
+        cout << "Enter choice: ";
 
-    return 0;
+        int choice, key, value;
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter key: ";
+                cin >> key;
+                cout << "Enter value: ";
+                cin >> value;
+                lru.put(key, value);
+                cout << "Inserted successfully!\n";
+                break;
+            case 2:
+                cout << "Enter key to retrieve: ";
+                cin >> key;
+                value = lru.get(key);
+                if (value != -1)
+                    cout << "Value: " << value << endl;
+                else
+                    cout << "Key not found!\n";
+                break;
+            case 3:
+                lru.displayCache();
+                break;
+            case 4:
+                cout << "Exiting program.\n";
+                return 0;
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+    }
 }
 
