@@ -62,6 +62,40 @@ private:
         return root;
     }
 
+    void inorder(TreapNode* root, vector<int>& result) const {
+        if (!root) return;
+        inorder(root->left, result);
+        result.push_back(root->key);
+        inorder(root->right, result);
+    }
+
+    void getKeysInRange(TreapNode* root, int lower, int upper, vector<int>& result) const {
+        if (!root) return;
+        if (root->key > lower)
+            getKeysInRange(root->left, lower, upper, result);
+        if (root->key >= lower && root->key <= upper)
+            result.push_back(root->key);
+        if (root->key < upper)
+            getKeysInRange(root->right, lower, upper, result);
+    }
+
+    int findClosestKey(TreapNode* root, int target, int closest, int minDiff) const {
+        if (!root) return closest;
+        
+        int diff = abs(root->key - target);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closest = root->key;
+        }
+        
+        if (target < root->key)
+            return findClosestKey(root->left, target, closest, minDiff);
+        else if (target > root->key)
+            return findClosestKey(root->right, target, closest, minDiff);
+        else
+            return root->key; // Found exact match
+    }
+
 public:
     Treap() : root(nullptr) {}
 
@@ -71,6 +105,22 @@ public:
 
     void remove(int key) {
         root = remove(root, key);
+    }
+
+    vector<int> getSortedKeys() const {
+        vector<int> result;
+        inorder(root, result);
+        return result;
+    }
+
+    vector<int> getKeysInRange(int lower, int upper) const {
+        vector<int> result;
+        getKeysInRange(root, lower, upper, result);
+        return result;
+    }
+
+    int findClosestKey(int target) const {
+        return findClosestKey(root, target, INT_MAX, INT_MAX);
     }
 };
 
@@ -153,6 +203,30 @@ public:
         }
         cout << endl;
     }
+
+    void displaySortedKeys() {
+        vector<int> sortedKeys = treap.getSortedKeys();
+        cout << "\nSorted Cache Keys: ";
+        for (int key : sortedKeys) {
+            cout << key << " ";
+        }
+        cout << endl;
+    }
+
+    void displayKeysInRange(int lower, int upper) {
+        vector<int> keysInRange = treap.getKeysInRange(lower, upper);
+        cout << "\nKeys in range [" << lower << ", " << upper << "]: ";
+        for (int key : keysInRange) {
+            cout << key << " ";
+        }
+        cout << endl;
+    }
+
+    void findClosestKey(int target) {
+        int closest = treap.findClosestKey(target);
+        cout << "\nClosest key to " << target << " is: " << closest;
+        cout << " with value: " << get(closest) << endl;
+    }
 };
 
 // Menu-driven program
@@ -168,10 +242,13 @@ int main() {
         cout << "1. Put (Insert key-value pair)\n";
         cout << "2. Get (Retrieve value by key)\n";
         cout << "3. Display Cache\n";
-        cout << "4. Exit\n";
+        cout << "4. Display Sorted Keys\n";
+        cout << "5. Find Keys in Range\n";
+        cout << "6. Find Closest Key\n";
+        cout << "7. Exit\n";
         cout << "Enter choice: ";
 
-        int choice, key, value;
+        int choice, key, value, lower, upper, target;
         cin >> choice;
 
         switch (choice) {
@@ -196,6 +273,21 @@ int main() {
                 lru.displayCache();
                 break;
             case 4:
+                lru.displaySortedKeys();
+                break;
+            case 5:
+                cout << "Enter lower bound: ";
+                cin >> lower;
+                cout << "Enter upper bound: ";
+                cin >> upper;
+                lru.displayKeysInRange(lower, upper);
+                break;
+            case 6:
+                cout << "Enter target key: ";
+                cin >> target;
+                lru.findClosestKey(target);
+                break;
+            case 7:
                 cout << "Exiting program.\n";
                 return 0;
             default:
